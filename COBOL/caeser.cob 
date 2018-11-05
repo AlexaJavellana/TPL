@@ -1,10 +1,57 @@
+       >>SOURCE FORMAT IS FREE
 IDENTIFICATION DIVISION.
-PROGRAM-ID. CAESER-COBOL.
+PROGRAM-ID. caesar.
 
 DATA DIVISION.
   WORKING-STORAGE SECTION.
-  01 CIPHER-KEY   PIC 9(2) VALUE '0'.
+  01 key          PIC 99.
+  01 csrString    PIC X(70).
+  01 originalMsg  PIC X(70).
+
+  01 cipStr       PIC X(70).
 
 PROCEDURE DIVISION.
-  DISPLAY "Type your message: ".
-STOP RUN.
+  DISPLAY "Type your message: " NO ADVANCING
+  ACCEPT csrString 
+  DISPLAY "Enter cipher: " NO ADVANCING
+  ACCEPT key
+
+  SET originalMsg TO csrString
+  MOVE FUNCTION encrypt(csrString, key) TO cipStr
+
+  DISPLAY "Message: " cipStr
+  .
+END PROGRAM caesar.
+
+FUNCTION-ID. encrypt.
+
+DATA DIVISON. 
+LOCAL-STORAGE SECTION.
+01 i        PIC 9(2).
+01 x        PIC 9(2).
+
+LINKAGE SECTION.
+01 key      PIC 99.
+01 str      PIC X(70).
+
+01 cipStr   PIC X(70).
+
+PROCEDURE DIVISION USING str, key RETURNING cipStr.
+  MOVE str TO cipStr
+  PERFORM VARYING i FROM 1 BY 1 UNTIL i > FUNCTION LENGTH(str)
+    IF cipStr (i:1) IS NOT ALPHABETIC OR cipStr (i:1) = SPACE
+      EXIT PERFORM CYCLE
+    END-IF
+
+    IF encrypted-str (i:1) IS ALPHABETIC-UPPER
+      MOVE FUNCTION ORD("A") TO x
+    ELSE
+      MOVE FUNCTION ORD("a") TO x
+    END-IF
+
+    MOVE FUNCTION CHAR(FUNCTION MOD(FUNCTION ORD(encrypted-str (i:1))
+      - x + offset, 26) + x)
+    TO encrypted-str (i:1)
+  END-PERFORM
+  .
+END FUNCTION encrypt.
